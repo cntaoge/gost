@@ -1,4 +1,3 @@
-Markdown
 # Gost v3 交互式管理工具 (私有备份版)
 
 这是一个基于 [GOST (Go Safety Tunnel)](https://github.com/go-gost/gost) v3 构建的自动化部署与管理脚本。本项目旨在为个人用户提供一个稳定、快速且自持的 Gost 部署方案。
@@ -17,10 +16,10 @@ Markdown
 
 在你的 VPS 上运行以下命令即可启动交互式管理菜单：
 ```bash
-wget -O install_gost.sh [https://raw.githubusercontent.com/cntaoge/gost/master/install_gost.sh](https://raw.githubusercontent.com/cntaoge/gost/master/install_gost.sh) && chmod +x install_gost.sh && ./install_gost.sh
+wget -O install_gost.sh https://raw.githubusercontent.com/cntaoge/gost/master/install_gost.sh && chmod +x install_gost.sh && ./install_gost.sh
 ```
 
-🌟 脚本特色
+## 🌟 脚本特色
 私有化保障：安装包从本仓库的 Release 区域下载，不受外部变动影响。
 
 智能更新：自动检测官方最新的发布版本并提醒。
@@ -29,7 +28,7 @@ wget -O install_gost.sh [https://raw.githubusercontent.com/cntaoge/gost/master/i
 
 安全卸载：仅移除 Gost 相关文件，不触动系统基础组件。
 
-🛠️ 功能菜单说明
+## 🛠️ 功能菜单说明
 全新安装：一键配置 SOCKS5 代理及守护进程。
 
 服务状态：实时查看运行日志。
@@ -48,8 +47,8 @@ wget -O install_gost.sh [https://raw.githubusercontent.com/cntaoge/gost/master/i
 
 彻底卸载：安全移除所有相关文件。
 
-⚖️ 免责声明
+## ⚖️ 免责声明
 本脚本仅供个人研究和学习使用，请勿用于任何违反当地法律法规的活动。用户自行承担相应风险。
 
-🌟 支持原项目
+## 🌟 支持原项目
 如果你觉得 Gost 很好用，请前往 **[go-gost/gost](https://github.com/go-gost/gost)** 给原作者一个 Star！
