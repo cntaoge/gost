@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ================= 配置区 =================
-# 个人 GitHub 仓库GOST备用地址
+# 初始安装使用的个人备份仓库地址
 MY_REPO_BASE="https://github.com/cntaoge/gost/releases/download"
 # 官方 GitHub API 地址（用于检查更新）
 OFFICIAL_API="https://api.github.com/repos/go-gost/gost/releases/latest"
@@ -13,21 +13,38 @@ GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 PLAIN='\033[0m'
 
-# 权限检查
+# 权限检查[cite: 1]
 [[ $EUID -ne 0 ]] && echo -e "${RED}错误：${PLAIN} 必须使用 root 用户运行此脚本！\n" && exit 1
 
-# 环境准备
+# 环境准备[cite: 1]
 prepare_env() {
     echo -e "${YELLOW}正在检查并安装必要组件...${PLAIN}"
     if command -v apt-get > /dev/null; then
         apt-get update -y
-        apt-get install -y wget curl tar procps iproute2 ca-certificates
+        apt-get install -y wget curl tar procps iproute2 ca-certificates logrotate
     elif command -v yum > /dev/null; then
-        yum install -y wget curl tar procps-ng iproute2 ca-certificates
+        yum install -y wget curl tar procps-ng iproute2 ca-certificates logrotate
     fi
 }
 
-# 获取架构
+# 防火墙自动放行逻辑[cite: 1]
+open_fw() {
+    local port=$1
+    echo -e "${YELLOW}正在自动配置防火墙放行端口: $port...${PLAIN}"
+    if command -v ufw >/dev/null 2>&1 && ufw status | grep -q "Status: active"; then
+        ufw allow "$port"/tcp >/dev/null
+        ufw allow "$port"/udp >/dev/null
+    elif command -v firewall-cmd >/dev/null 2>&1; then
+        firewall-cmd --permanent --add-port="$port"/tcp >/dev/null 2>&1
+        firewall-cmd --permanent --add-port="$port"/udp >/dev/null 2>&1
+        firewall-cmd --reload >/dev/null 2>&1
+    fi
+    # 兜底强制放行 iptables[cite: 1]
+    iptables -I INPUT -p tcp --dport "$port" -j ACCEPT >/dev/null 2>&1
+    iptables -I INPUT -p udp --dport "$port" -j ACCEPT >/dev/null 2>&1
+}
+
+# 获取架构[cite: 1]
 set_arch() {
     arch=$(uname -m)
     case $arch in
@@ -38,7 +55,7 @@ set_arch() {
     esac
 }
 
-# 获取当前已安装版本
+# 获取当前已安装版本[cite: 1]
 get_current_version() {
     if [[ -f /usr/local/bin/gost ]]; then
         local curr_v=$(/usr/local/bin/gost -V 2>&1 | grep -Po 'gost v\K[0-9.]+')
@@ -48,37 +65,39 @@ get_current_version() {
     fi
 }
 
-# 核心安装逻辑
+# 核心安装逻辑[cite: 1]
 install_gost() {
     prepare_env
     local version=$1
-    local mode=$2
-
+    local mode=$2 # "new" 为初次安装, "update" 为更新
     set_arch
 
-    if [[ "$mode" == "new" ]]; then
-        echo -e "\n${YELLOW}==================================================${PLAIN}"
-        echo -e "${YELLOW} 注意：以下输入的用户名和密码是为 GOST 代理设置的，${PLAIN}"
-        echo -e "${YELLOW} 用于客户端连接，并非你的系统登录密码。${PLAIN}"
-        echo -e "${YELLOW}==================================================${PLAIN}\n"
-        read -p "设置代理连接用户名: " USER
-        while [[ -z "$USER" ]]; do read -p "不能为空: " USER; done
-        read -p "设置代理连接密码: " PASS
-        while [[ -z "$PASS" ]]; do read -p "不能为空: " PASS; done
-        read -p "设置代理连接端口: " PORT
-        while [[ -z "$PORT" || ! "$PORT" =~ ^[0-9]+$ ]]; do read -p "请输入数字端口: " PORT; done
-    fi
-
-    echo -e "${YELLOW}正在从个人备份源下载 Gost v$version...${PLAIN}"
-    cd /tmp
     local file_name="gost_${version}_linux_${arch}.tar.gz"
     
-    # 【修改点】使用你自己的仓库地址进行下载
-    wget -N --timeout=15 "${MY_REPO_BASE}/v${version}/${file_name}"
-    
+    # 关键逻辑：根据 mode 切换下载源[cite: 1]
+    if [[ "$mode" == "new" ]]; then
+        local download_url="${MY_REPO_BASE}/v${version}/${file_name}"
+        echo -e "${YELLOW}正在从个人备份源下载 Gost v$version...${PLAIN}"
+    else
+        local download_url="https://github.com/go-gost/gost/releases/download/v${version}/${file_name}"
+        echo -e "${YELLOW}正在从官方仓库下载最新版 v$version...${PLAIN}"
+    fi
+
+    if [[ "$mode" == "new" ]]; then
+        echo -e "\n${YELLOW}====== 配置代理信息 ======${PLAIN}"
+        read -p "设置代理用户名: " USER
+        while [[ -z "$USER" ]]; do read -p "不能为空: " USER; done
+        read -p "设置代理密码: " PASS
+        while [[ -z "$PASS" ]]; do read -p "不能为空: " PASS; done
+        read -p "设置代理端口: " PORT
+        while [[ -z "$PORT" || ! "$PORT" =~ ^[0-9]+$ ]]; do read -p "请输入数字: " PORT; done
+        open_fw "$PORT"
+    fi
+
+    cd /tmp
+    wget -N --timeout=15 "$download_url"
     if [[ $? -ne 0 ]]; then
-        echo -e "${RED}下载失败！${PLAIN}"
-        echo -e "请确保你的仓库 ${YELLOW}cntaoge/gost${PLAIN} 的 Release 中已上传该文件。"
+        echo -e "${RED}下载失败！请检查网络或版本号是否存在。${PLAIN}"
         return 1
     fi
 
@@ -95,6 +114,8 @@ After=network.target
 [Service]
 Type=simple
 ExecStart=/usr/local/bin/gost -L socks5://$USER:$PASS@:$PORT
+StandardOutput=append:/var/log/gost.log
+StandardError=append:/var/log/gost.log
 Restart=always
 RestartSec=5
 LimitNOFILE=65535
@@ -102,68 +123,72 @@ LimitNOFILE=65535
 [Install]
 WantedBy=multi-user.target
 EOF
+        cat <<LOG > /etc/logrotate.d/gost
+/var/log/gost.log {
+    daily
+    rotate 7
+    missingok
+    notifempty
+    compress
+    copytruncate
+}
+LOG
         systemctl daemon-reload
         systemctl enable gost
     fi
 
     systemctl restart gost
-    
-    echo -e "${YELLOW}正在清理安装临时文件...${PLAIN}"
     rm -f "/tmp/${file_name}"
-
     echo -e "${GREEN}操作成功！当前版本: $(get_current_version)${PLAIN}"
 }
 
-# 更新检查逻辑（依然指向官方）
+# 更新检查逻辑[cite: 1]
 update_check() {
     echo -e "${YELLOW}正在从官方 GitHub 获取最新版本信息...${PLAIN}"
     local curr=$(get_current_version)
-    # 【保留点】依然请求官方 API
     local late=$(curl -s --connect-timeout 5 "$OFFICIAL_API" | grep -Po '"tag_name": "v\K[0-9.]+')
     
     if [[ -z "$late" ]]; then
-        echo -e "${RED}无法连接官方 GitHub 接口，请检查网络。${PLAIN}"
+        echo -e "${RED}无法连接官方 GitHub 接口。${PLAIN}"
         return 1
     fi
 
-    echo -e "当前版本: ${YELLOW}$curr${PLAIN}"
-    echo -e "官方最新: ${YELLOW}$late${PLAIN}"
-
     if [[ "$curr" == "$late" ]]; then
-        echo -e "${GREEN}已经是最新版本。${PLAIN}"
+        echo -e "${GREEN}已经是最新版本 ($curr)。${PLAIN}"
     else
-        echo -e "${YELLOW}检测到官方有新版本！${PLAIN}"
-        echo -e "请先在你的仓库 ${YELLOW}cntaoge/gost${PLAIN} 中同步官方 Release 后再升级。"
-        read -p "是否尝试从你的仓库升级？(y/n): " confirm
+        echo -e "${YELLOW}检测到新版本: $late (当前: $curr)${PLAIN}"
+        read -p "是否直接从官方下载更新？(y/n): " confirm
         [[ "$confirm" == "y" ]] && install_gost "$late" "update"
     fi
 }
 
-# 卸载逻辑（不触及系统组件）
+# 卸载逻辑[cite: 1]
 uninstall_all() {
-    read -p "确定要彻底卸载 Gost 吗？(y/n): " confirm
+    read -p "确定要彻底卸载 Gost 及其所有日志吗？(y/n): " confirm
     if [[ "$confirm" == "y" ]]; then
         systemctl stop gost
         systemctl disable gost
         rm -f /etc/systemd/system/gost.service
         rm -f /usr/local/bin/gost
+        rm -f /etc/logrotate.d/gost
+        rm -f /var/log/gost.log*
         systemctl daemon-reload
-        echo -e "${GREEN}卸载完成。基础组件(wget/curl)已保留。${PLAIN}"
+        echo -e "${GREEN}卸载完成。系统已恢复干净。${PLAIN}"
     fi
 }
 
-# 主菜单
+# 主菜单[cite: 1]
 while true; do
     echo -e "
-  ${GREEN}Gost v3 交互式管理工具 (私有备份版)${PLAIN}
+  ${GREEN}Gost v3 交互式管理工具 (私有安装+官方更新)${PLAIN}
   -----------------------------
-  ${GREEN}1.${PLAIN} 全新安装 Gost (默认稳定版 3.2.6)
+  ${GREEN}1.${PLAIN} 全新安装 Gost (默认 3.2.6)
   ${GREEN}2.${PLAIN} 检查服务状态
   ${GREEN}3.${PLAIN} 重载 Systemd 配置
   ${GREEN}4.${PLAIN} 重启 Gost 服务
   ${GREEN}5.${PLAIN} 检查系统防火墙
   ${GREEN}6.${PLAIN} 检查进程及端口
-  ${GREEN}7.${PLAIN} 检查官方更新
+  ${GREEN}7.${PLAIN} 检查并执行官方更新
   ${GREEN}8.${PLAIN} 查看当前公网 IP
   ${RED}9.${PLAIN} 卸载 Gost
   ${RED}0. 退出脚本${PLAIN}
