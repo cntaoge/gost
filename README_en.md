@@ -1,106 +1,54 @@
-# GO Simple Tunnel
+# Gost v3 Interactive Management Tool (Private Backup)
 
-### A simple security tunnel written in golang
+A powerful automation deployment and management script based on [GOST (Go Safety Tunnel)](https://github.com/go-gost/gost) v3. This project aims to provide a stable, fast, and self-hosted GOST deployment solution for individual users.
 
-[![en](https://img.shields.io/badge/English%20README-green)](README_en.md) [![zh](https://img.shields.io/badge/Chinese%20README-gray)](README.md)
+---
 
-## Features
+## 🙏 Credits to Original Author
 
-- [x] [Listening on multiple ports](https://gost.run/en/getting-started/quick-start/)
-- [x] [Multi-level forwarding chain](https://gost.run/en/concepts/chain/)
-- [x] Rich protocol
-- [x] [TCP/UDP port forwarding](https://gost.run/en/tutorials/port-forwarding/)
-- [x] [Reverse Proxy](https://gost.run/en/tutorials/reverse-proxy/) and [Tunnel](https://gost.run/en/tutorials/reverse-proxy-tunnel/)
-- [x] [TCP/UDP transparent proxy](https://gost.run/en/tutorials/redirect/)
-- [x] DNS [resolver](https://gost.run/en/concepts/resolver/) and [proxy](https://gost.run/en/tutorials/dns/)
-- [x] [TUN/TAP device](https://gost.run/en/tutorials/tuntap/) and [TUN2SOCKS](https://gost.run/en/tutorials/tungo/)
-- [x] [Load balancing](https://gost.run/en/concepts/selector/)
-- [x] [Routing control](https://gost.run/en/concepts/bypass/)
-- [x] [Admission control](https://gost.run/en/concepts/limiter/)
-- [x] [Bandwidth/Rate Limiter](https://gost.run/en/concepts/limiter/)
-- [x] [Plugin System](https://gost.run/en/concepts/plugin/)
-- [x] [Prometheus metrics](https://gost.run/en/tutorials/metrics/)
-- [x] [Dynamic configuration](https://gost.run/en/tutorials/api/config/)
-- [x] [Web API](https://gost.run/en/tutorials/api/overview/)
-- [x] [GUI](https://github.com/go-gost/gostctl)/[WebUI](https://github.com/go-gost/gost-ui)
+The core functionality of this project is powered by **[GOST](https://github.com/go-gost/gost)**. Sincere thanks to the **[gost-core](https://github.com/go-gost)** team and all contributors.
 
-## Overview
+> **Note**: This repository is a personal backup forked from the official project to ensure binary deployment availability in extreme environments.
 
-![Overview](https://gost.run/images/overview.png)
+---
 
-There are three main ways to use GOST as a tunnel.
+## 🚀 Quick Start
 
-### Proxy
-
-As a proxy service to access the network, multiple protocols can be used in combination to form a forwarding chain for traffic forwarding.
-
-![Proxy](https://gost.run/images/proxy.png)
-
-### Port Forwarding
-
-Mapping the port of one service to the port of another service, you can also use a combination of multiple protocols to form a forwarding chain for traffic forwarding.
-
-![Forward](https://gost.run/images/forward.png)
-
-### Reverse Proxy
-
-Use tunnel and intranet penetration to expose local services behind NAT or firewall to public network for access.
-
-![Reverse Proxy](https://gost.run/images/reverse-proxy.png)
-
-## Installation
-
-### Binary files
-
-[https://github.com/go-gost/gost/releases](https://github.com/go-gost/gost/releases)
-
-### install script
-
+Run the following command on your VPS to launch the interactive management menu:
 ```bash
-# install latest from [https://github.com/go-gost/gost/releases](https://github.com/go-gost/gost/releases)
-bash <(curl -fsSL https://github.com/go-gost/gost/raw/master/install.sh) --install
-```
-```bash
-# select version for install 
-bash <(curl -fsSL https://github.com/go-gost/gost/raw/master/install.sh)
+wget -O install_gost.sh https://raw.githubusercontent.com/cntaoge/gost/master/install_gost.sh && chmod +x install_gost.sh && ./install_gost.sh
 ```
 
-### From source
+## 🌟 Key Features
+Private Security: Installation packages are downloaded from this repository's Release area, independent of external changes.
 
-```
-git clone https://github.com/go-gost/gost.git
-cd gost/cmd/gost
-go build
-```
+Smart Update: Automatically detects and notifies you of the latest official releases.
 
-### Docker
+Zero-Residue Cleanup: Automatically removes temporary files after installation to keep the system clean.
 
-```
-docker run --rm gogost/gost -V
-```
+Safe Uninstall: Only removes Gost-related files without touching system base components.
 
-## Tools
+## 🛠️ Menu Functionality
+Fresh Install: One-click configuration for SOCKS5 proxy and daemon process.
 
-### GUI
+Service Status: View real-time operation logs.
 
-[go-gost/gostctl](https://github.com/go-gost/gostctl)
+Reload Config: Quickly apply changes made to Systemd.
 
-### WebUI
+Restart Service: Fast restart of the proxy process.
 
-[go-gost/gost-ui](https://github.com/go-gost/gost-ui)
+Firewall Check: Automatically detects UFW / Firewalld status.
 
-### Shadowsocks Android
+Process Check: Monitor port occupancy and process status.
 
-[hamid-nazari/ShadowsocksGostPlugin](https://github.com/hamid-nazari/ShadowsocksGostPlugin)
+Check for Updates: Guide to sync with the latest official version.
 
-## Support
+Public IP: Display the external access address of your VPS.
 
-Wiki: [https://gost.run](https://gost.run/en/)
+Complete Uninstall: Safely remove all associated files.
 
-YouTube: [https://www.youtube.com/@gost-tunnel](https://www.youtube.com/@gost-tunnel)
+⚖️ Disclaimer
+This script is for personal research and learning purposes only. Do not use it for any activities that violate local laws and regulations. Users assume all associated risks.
 
-Telegram: [https://t.me/gogost](https://t.me/gogost)
-
-Google group: [https://groups.google.com/d/forum/go-gost](https://groups.google.com/d/forum/go-gost)
-
-Legacy version: [v2.gost.run](https://v2.gost.run/en/)
+## 🌟 Support Original Project
+If you find Gost useful, please head over to **[go-gost/gost](https://github.com/go-gost/gost)** and give the author a Star!
