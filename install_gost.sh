@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ================= 配置区 =================
-# 你的个人 GitHub 仓库基础地址
+# 个人 GitHub 仓库GOST备用地址
 MY_REPO_BASE="https://github.com/cntaoge/gost/releases/download"
 # 官方 GitHub API 地址（用于检查更新）
 OFFICIAL_API="https://api.github.com/repos/go-gost/gost/releases/latest"
