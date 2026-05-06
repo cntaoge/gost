@@ -14,7 +14,8 @@
 
 ## 🚀 快速开始
 
-在你的 VPS 上运行以下命令即可启动交互式管理菜单。该脚本支持全新安装、版本更新、服务管理及防火墙检查等功能。
+在你的 VPS 上运行以下命令即可启动交互式管理菜单。该脚本支持全新安装、版本更新、服务管理等功能。
+
 ```bash
 wget -O install_gost.sh [https://raw.githubusercontent.com/cntaoge/gost/master/install_gost.sh](https://raw.githubusercontent.com/cntaoge/gost/master/install_gost.sh) && chmod +x install_gost.sh && ./install_gost.sh
 
@@ -50,4 +51,4 @@ wget -O install_gost.sh [https://raw.githubusercontent.com/cntaoge/gost/master/i
 本脚本仅供个人研究和学习使用，请勿用于任何违反当地法律法规的活动。用户自行承担相应风险。
 
 🌟 支持原项目
-如果你觉得 Gost 很好用，请前往 go-gost/gost 给原作者一个 Star！
+如果你觉得 Gost 很好用，请前往 **[go-gost/gost](https://github.com/go-gost/gost)** 给原作者一个 Star！
